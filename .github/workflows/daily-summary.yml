@@ -1,17 +1,16 @@
 name: Daily Horizon Summary
 
 on:
-  # schedule:
-  #   - cron: '0 0 */2 * *'  # Runs every 2 days at 00:00 UTC
-  #     timezone: 'Asia/Shanghai'
-  workflow_dispatch:      # Allow manual trigger
+  schedule:
+    - cron: '0 0 * * *'   # 每天 00:00 UTC = 台北時間 08:00 自動執行
+  workflow_dispatch:        # 允許在 GitHub 上手動觸發（第一次測試用）
 
 jobs:
   daily-summary:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # Needed to commit changes
-
+      models: read     # 允許用內建 GITHUB_TOKEN 呼叫 GitHub Models 免費 AI
+      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -32,23 +31,10 @@ jobs:
 
       - name: Run Horizon
         env:
-          # Map secrets to environment variables expected by config.json
-          # Modify these based on your data/config.github.json provider settings
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-          LWN_KEY: ${{ secrets.LWN_KEY }}
-        run: uv run horizon --hours 48
-
-      - name: Set current date as environment variable
-        run: echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs
-          keep_files: true  # Keep existing summaries on gh-pages branch
-          commit_message: "📝 Daily Summary: ${{ env.DATE }}"
-          publish_branch: gh-pages
-          enable_jekyll: true
+          # 用 GitHub 內建 token 當 AI 金鑰（GitHub Models 免費額度），不用自己申請
+          OPENAI_API_KEY: ${{ secrets.GITHUB_TOKEN }}
+          # 同一把 token 也用來提高 GitHub 來源的抓取額度
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # 你唯一要自己設定的 Secret：Teams Webhook 網址
+          HORIZON_WEBHOOK_URL: ${{ secrets.HORIZON_WEBHOOK_URL }}
+        run: uv run horizon --hours 24
