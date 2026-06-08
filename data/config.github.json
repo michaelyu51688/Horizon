@@ -13,7 +13,13 @@
     "enrichment_concurrency": 1
   },
   "email": {
-    "enabled": false
+    "enabled": false,
+    "smtp_server": "smtp.example.com",
+    "smtp_port": 465,
+    "imap_server": "imap.example.com",
+    "imap_port": 993,
+    "email_address": "noreply@example.com",
+    "sender_name": "Horizon Daily"
   },
   "sources": {
     "github": [
