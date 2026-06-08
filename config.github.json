@@ -1,0 +1,91 @@
+{
+  "version": "1.0",
+  "ai": {
+    "provider": "openai",
+    "model": "openai/gpt-4o-mini",
+    "api_key_env": "OPENAI_API_KEY",
+    "base_url": "https://models.github.ai/inference",
+    "languages": ["zh", "en"],
+    "temperature": 0.3,
+    "max_tokens": 4096,
+    "throttle_sec": 4.5,
+    "analysis_concurrency": 1,
+    "enrichment_concurrency": 1
+  },
+  "email": {
+    "enabled": false
+  },
+  "sources": {
+    "github": [
+      { "type": "repo_releases", "owner": "ggml-org", "repo": "llama.cpp", "enabled": true },
+      { "type": "repo_releases", "owner": "vllm-project", "repo": "vllm", "enabled": true },
+      { "type": "repo_releases", "owner": "huggingface", "repo": "transformers", "enabled": true },
+      { "type": "repo_releases", "owner": "ollama", "repo": "ollama", "enabled": true }
+    ],
+    "hackernews": {
+      "enabled": true,
+      "fetch_top_stories": 15,
+      "min_score": 150
+    },
+    "rss": [
+      { "name": "Simon Willison", "url": "https://simonwillison.net/atom/everything/", "enabled": true, "category": "ai-llm" },
+      { "name": "Hugging Face Blog", "url": "https://huggingface.co/blog/feed.xml", "enabled": true, "category": "ai-llm" }
+    ],
+    "reddit": {
+      "enabled": true,
+      "fetch_comments": 3,
+      "subreddits": [
+        { "subreddit": "MachineLearning", "enabled": true, "sort": "hot", "time_filter": "day", "fetch_limit": 10, "min_score": 80 },
+        { "subreddit": "LocalLLaMA", "enabled": true, "sort": "hot", "time_filter": "day", "fetch_limit": 10, "min_score": 80 }
+      ],
+      "users": []
+    },
+    "ossinsight": {
+      "enabled": true,
+      "period": "past_24_hours",
+      "languages": ["All", "Python"],
+      "keywords": ["llm", "gpt", "agent", "rag", "ai", "model", "transformer"],
+      "min_stars": 50,
+      "max_items": 12
+    },
+    "twitter": {
+      "enabled": false
+    },
+    "openbb": {
+      "enabled": false
+    }
+  },
+  "filtering": {
+    "ai_score_threshold": 7.0,
+    "time_window_hours": 24
+  },
+  "webhook": {
+    "enabled": true,
+    "url_env": "HORIZON_WEBHOOK_URL",
+    "delivery": "summary",
+    "overview_position": "first",
+    "platform": "generic",
+    "layout": "markdown",
+    "fallback_layout": "markdown",
+    "languages": ["zh"],
+    "request_body": {
+      "type": "message",
+      "attachments": [
+        {
+          "contentType": "application/vnd.microsoft.card.adaptive",
+          "content": {
+            "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+            "type": "AdaptiveCard",
+            "version": "1.4",
+            "body": [
+              { "type": "TextBlock", "text": "#{message_title}", "weight": "Bolder", "size": "Large", "wrap": true },
+              { "type": "TextBlock", "text": "#{date} · 重要 #{important_items}/#{all_items} 則", "isSubtle": true, "spacing": "None", "wrap": true },
+              { "type": "TextBlock", "text": "#{summary?limit=12000&split=---}", "wrap": true }
+            ]
+          }
+        }
+      ]
+    },
+    "headers": ""
+  }
+}
